@@ -95,7 +95,7 @@ local cycle_held_order, cycle_index, cycle_active_track = {}, 0, nil
 local next_cycle_time, cycle_anchor_time, cycle_beat_count, sys_time = 0, 0, 0, 0
 
 local function get_effective_bpm() return clock_source == 2 and (bpm / clock_divs[ext_div_idx]) or bpm end
-local function stutter_period(col)
+local function repeat_period(col)
   local b = 60 / get_effective_bpm()
   return (col == 12) and b or ((col == 13) and (b/2) or (b/4))
 end
@@ -157,16 +157,16 @@ local sys_m = metro.init(function()
     if preset_blink[py].x and (sys_time - preset_blink[py].time) >= 0.75 then preset_blink[py] = {time = 0}; draw() end
   end
   for i, t in ipairs(tracks) do
-    if t.stutter_col and sys_time >= t.next_stutter_time then
+    if t.repeat_col and sys_time >= t.next_repeat_time then
       if t.playing_note then note_off(i) end
       if not t.muted then note_on(i, default_velocity) else t.playing_note = false end
-      t.stutter_hit_count = t.stutter_hit_count + 1
-      t.next_stutter_time = t.stutter_anchor_time + (t.stutter_hit_count + 1) * t.stutter_period + compute_step_offset(t, t.stutter_hit_count + 1, t.stutter_period)
+      t.repeat_hit_count = t.repeat_hit_count + 1
+      t.next_repeat_time = t.repeat_anchor_time + (t.repeat_hit_count + 1) * t.repeat_period + compute_step_offset(t, t.repeat_hit_count + 1, t.repeat_period)
     end
   end
   local cycle_active = #cycle_held_order > 0
   if cycle_active then
-    local cp = stutter_period(14) 
+    local cp = repeat_period(14) 
     if cycle_anchor_time == 0 then cycle_anchor_time, next_cycle_time, cycle_beat_count = next_grid_time(cp), next_grid_time(cp) + cp, 0 end
     if sys_time >= next_cycle_time then
       if cycle_active_track then note_off(cycle_active_track) end
@@ -189,7 +189,7 @@ local function update_tempo()
   local b = 60 / get_effective_bpm()
   m.time, blink_m.time, ratchet_blink_m.time = b/4, b/2, b/4      
   midi_clock_m.time = (60 / bpm) / 24 
-  for _, t in ipairs(tracks) do if t.stutter_col then t.stutter_period = stutter_period(t.stutter_col) end end
+  for _, t in ipairs(tracks) do if t.repeat_col then t.repeat_period = repeat_period(t.repeat_col) end end
 end
 
 local pending_ratchet_hits = {}
@@ -227,24 +227,24 @@ swing_metro = metro.init(function()
   end
 end, 0.1, 1)
 
-local function start_stutter(i, col)
+local function start_repeat(i, col)
   local t = tracks[i]
-  t.stutter_col, t.stutter_period, t.stutter_hit_count = col, stutter_period(col), 0
-  t.stutter_anchor_time = next_grid_time(t.stutter_period)
-  t.next_stutter_time = t.stutter_anchor_time + t.stutter_period + compute_step_offset(t, 1, t.stutter_period)
+  t.repeat_col, t.repeat_period, t.repeat_hit_count = col, repeat_period(col), 0
+  t.repeat_anchor_time = next_grid_time(t.repeat_period)
+  t.next_repeat_time = t.repeat_anchor_time + t.repeat_period + compute_step_offset(t, 1, t.repeat_period)
 end
-local function stop_stutter(i)
-  tracks[i].stutter_col = nil
+local function stop_repeat(i)
+  tracks[i].repeat_col = nil
   if tracks[i].playing_note then midi_tx(127 + tracks[i].channel, tracks[i].note, 0); tracks[i].playing_note = false end
 end
-local function any_stutter_active() for i=1,#tracks do if tracks[i].stutter_col then return true end end return false end
+local function any_repeat_active() for i=1,#tracks do if tracks[i].repeat_col then return true end end return false end
 local function advance_step()
-  for i, t in ipairs(tracks) do if t.playing_note and not t.stutter_col and i ~= cycle_active_track then midi_tx(127 + t.channel, t.note, 0); t.playing_note = false end end
+  for i, t in ipairs(tracks) do if t.playing_note and not t.repeat_col and i ~= cycle_active_track then midi_tx(127 + t.channel, t.note, 0); t.playing_note = false end end
   local max_len = 0
   for i, t in ipairs(tracks) do if t.length > max_len then max_len = t.length end end
   current_step = max_len > 0 and ((current_step % max_len) + 1) or 1
   local step_time = (60 / get_effective_bpm()) / 4
-  if not any_stutter_active() and #cycle_held_order == 0 then
+  if not any_repeat_active() and #cycle_held_order == 0 then
     for i, t in ipairs(tracks) do
       t.pos = (t.pos % t.length) + 1
       local val = t.steps[t.pos]
@@ -401,8 +401,8 @@ function event_grid(x, y, z)
     end return
   end
   if (x == 12 or x == 13 or x == 14) and y <= #tracks then
-    if z == 1 and pages.perform then start_stutter(y, x); draw(); return
-    elseif z == 0 and tracks[y].stutter_col == x then stop_stutter(y); draw(); return end
+    if z == 1 and pages.perform then start_repeat(y, x); draw(); return
+    elseif z == 0 and tracks[y].repeat_col == x then stop_repeat(y); draw(); return end
   end
   if x == 10 and y <= #tracks then
     if z == 1 and pages.perform then table.insert(cycle_held_order, y); draw(); return
@@ -490,7 +490,7 @@ function draw()
         grid_led(16, y, tracks[y].muted and 0 or 10)
         local isc = false; for _, trk in ipairs(cycle_held_order) do if trk == y then isc = true; break end end
         grid_led(10, y, isc and 15 or 4)
-        for _, c in ipairs({12,13,14}) do grid_led(c, y, tracks[y].stutter_col == c and 15 or 4) end
+        for _, c in ipairs({12,13,14}) do grid_led(c, y, tracks[y].repeat_col == c and 15 or 4) end
       end
     elseif pages.swing then
       for i=1,#tracks do grid_led(1, i, (not selected_offset_track and i == selected_track) and 15 or 4); grid_led(2, i, i == selected_offset_track and 15 or 4) end
