@@ -57,6 +57,7 @@ local function load_all_presets()
   
   local global_state = pset_read(100)
   if global_state then
+    if global_state.bpm then bpm = global_state.bpm end
     for y = 1, #tracks do
       local px = global_state[y]
       if px and presets[y][px] then
@@ -150,6 +151,7 @@ local sys_m = metro.init(function()
       presets[py][px] = { steps = {}, ratchets = {}, length = tracks[py].length, muted = tracks[py].muted, note = tracks[py].note, channel = tracks[py].channel, swing = tracks[py].swing, micro_timing = tracks[py].micro_timing }
       for i = 1, 32 do presets[py][px].steps[i], presets[py][px].ratchets[i] = tracks[py].steps[i], tracks[py].ratchets[i] end
       active_preset[py], held.saved, preset_blink[py] = px, true, {x = px, time = sys_time}
+      active_preset.bpm = bpm
       save_preset(py, px); pset_write(100, active_preset); draw()
     end
     if preset_blink[py].x and (sys_time - preset_blink[py].time) >= 0.75 then preset_blink[py] = {time = 0}; draw() end
@@ -393,7 +395,7 @@ function event_grid(x, y, z)
         if p then tracks[y].length, tracks[y].muted, tracks[y].note, tracks[y].channel, tracks[y].swing, tracks[y].micro_timing = p.length, p.muted or false, p.note or tracks[y].note, p.channel or 10, p.swing or 50, p.micro_timing or 0
           for i=1,32 do tracks[y].steps[i], tracks[y].ratchets[i] = p.steps[i], p.ratchets[i] end
         else reset_track(tracks[y]); tracks[y].swing, tracks[y].micro_timing = 50, 0 end
-        active_preset[y] = x; pset_write(100, active_preset)
+        active_preset[y] = x; active_preset.bpm = bpm; pset_write(100, active_preset)
       end
       preset_held[y] = {time = 0}; draw()
     end return
@@ -482,7 +484,8 @@ function draw()
         for x = 1, 8 do
           local p, has_s = presets[y][x], false
           if p then for i=1,32 do if (p.steps[i] or 0) > 0 then has_s = true; break end end end
-          grid_led(x, y, active_preset[y] == x and 15 or (preset_blink[y].x == x and (ratchet_blink_state and 15 or 0) or (p and has_s and 6 or 2)))
+          local br = (preset_blink[y].x == x) and (ratchet_blink_state and 15 or 0) or (active_preset[y] == x and 15 or (p and has_s and 6 or 2))
+          grid_led(x, y, br)
         end
         grid_led(16, y, tracks[y].muted and 0 or 10)
         local isc = false; for _, trk in ipairs(cycle_held_order) do if trk == y then isc = true; break end end
