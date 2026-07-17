@@ -1,7 +1,7 @@
 # stepiii
 A performance step sequencer for Monome Grid using iii
+[![stepiii demo](https://youtu.be/beYHoKUMklY)](https://youtu.be/beYHoKUMklY)
 
-![Overview](img/stepiii_Overview.png)
 ### Overview
 Stepiii is an adaptable 7-track 32-step sequencer with live performance in mind. It uses an intuitive UI and workflow to allow for quick pattern adjustments, instant preset swaps, and on-device configuration. 
 
@@ -10,6 +10,7 @@ It is designed for drums, but can be equally useful for polyphonic sequences or 
 Each of the 7 tracks can have independently configurable length, velocity per step, ratchet per step, different amounts of swing, positive or negative offset, MIDI note and MIDI channel.
 
 For performance, it has mutes, preset save and recall per track, tempo note repeat, and a cycling repeat.
+![Overview](img/stepiii_Overview.png)
 
 ## Play/Stop & Reset
 **[A] Play/Stop**
