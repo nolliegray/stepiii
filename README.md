@@ -1,6 +1,8 @@
 # stepiii
 A performance step sequencer for Monome Grid using iii
-[![stepiii demo](https://youtu.be/beYHoKUMklY)](https://youtu.be/beYHoKUMklY)
+
+[![stepiii demo](https://img.youtube.com/vi/beYHoKUMklY/0.jpg)](https://www.youtube.com/watch?v=beYHoKUMklY)
+
 
 ### Overview
 Stepiii is an adaptable 7-track 32-step sequencer with live performance in mind. It uses an intuitive UI and workflow to allow for quick pattern adjustments, instant preset swaps, and on-device configuration. 
