@@ -1,7 +1,7 @@
 # stepiii
 A performance step sequencer for Monome Grid using iii
 
-[![stepiii demo](https://img.youtube.com/vi/beYHoKUMklY/0.jpg)](https://www.youtube.com/watch?v=beYHoKUMklY)
+[![stepiii demo](https://github.com/nolliegray/stepiii/blob/main/img/stepiii_thumbnail.png)](https://www.youtube.com/watch?v=beYHoKUMklY)
 
 
 ### Overview
