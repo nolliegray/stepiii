@@ -108,7 +108,6 @@ local function next_grid_time(period)
   return sys_time + ((period - ((sys_time - playback_start_time) % period)) % period)
 end
 
--- NEW HELPER FUNCTIONS
 local function note_on(trk, vel)
   midi_tx(143 + tracks[trk].channel, tracks[trk].note, vel or default_velocity)
   tracks[trk].playing_note = true
@@ -134,7 +133,6 @@ local function increment_btns()
   grid_led(4,1,12); grid_led(4,2,6); grid_led(4,4,12); grid_led(4,5,6)
 end
 
--- REFACTORED SYS_M
 local sys_m = metro.init(function()
   sys_time = sys_time + 0.01
   if play_btn_held and not play_btn_cleared and (sys_time - play_btn_down_time) >= 2.0 then
@@ -325,7 +323,6 @@ local function shift_arr(arr, len, dir)
   else for i=1,len-1 do arr[i]=arr[i+1] end arr[len]=temp end
 end
 
--- REFACTORED DISPATCH TABLE FOR EVENT GRID
 local bottom_row_actions = {
   [2] = function() current_step = 0; for i=1,#tracks do tracks[i].pos = 0 end end,
   [3] = function() toggle_page("bpm") end,
@@ -452,7 +449,6 @@ function event_grid(x, y, z)
   end
 end
 
--- REFACTORED DRAW FUNCTION
 function draw()
   grid_led_all(0)
   local pulse_br = math.floor(4 + 2 * math.sin(sys_time * 4))
