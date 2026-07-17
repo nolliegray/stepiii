@@ -1,4 +1,4 @@
--- Stepiii
+-- stepiii
 pset_init("stepiii")
 
 local font = {
