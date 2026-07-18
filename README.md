@@ -126,7 +126,7 @@ MIDI notes can range from 0 to 127 and MIDI channels can range from 1 to 16. The
 
 ## Perform - Mute, Repeats & Cycle
 **[V] Perform & Presets**
-This button toggles the Perform and Presets page.
+This button toggles the Perform and Presets page. Holding **[V]** and pressing a mute or a preset will toggle all mutes or presets in a column.
 
 **[W] Mutes**
 The far right column is a global mute for each track. A track is muted when its button is off and will play when lit.
@@ -137,7 +137,7 @@ The three columns of buttons is the repeats performance control. One button from
 **[Y] Cycle**
 This column acts as a 1/16 note repeat, but will cycle through the notes in the order they are held. Mute states are respected like cycles.
 
-For both Repeats and Cycle, the repeats are tied to the BPM, swing, and offset for the track and begin on the next step to keep them in time.
+For both Repeats and Cycle, the repeats are tied to the BPM, swing, and offset.
 ![Perform Repeats Cycle](img/stepiii_Perform-Repeats-Cycle.png)
 
 ## Perform - Presets
@@ -146,7 +146,7 @@ This grid represents the preset slots for the sequencer. Each track can store 8 
 
 Each preset stores the track’s steps, velocities, ratchets, mutes, length, swing, offset, MIDI note, and MIDI channel.
 
-To save a preset, hold the slot button for 2 seconds until the slot blinks. Load a preset by tapping the desired button.
+To save a preset, hold the slot button for 2 seconds until the slot blinks. Load a preset by tapping the desired button. You can save or load a whole column of presets by holding the **[V]** button while selecting a preset from the column.
 
 Presets are saved to the grid and can be recalled for later use. They are numbered based on the row and column. In diii you will see files that look like this:  
 `pset_stepiii_11.lua`, `pset_stepiii_21.lua`, `pset_stepiii_31.lua`, etc...
