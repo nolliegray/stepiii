@@ -146,7 +146,7 @@ This grid represents the preset slots for the sequencer. Each track can store 8 
 
 Each preset stores the track’s steps, velocities, ratchets, mutes, length, swing, offset, MIDI note, and MIDI channel.
 
-To save a preset, hold the slot button for 2 seconds until the slot blinks. Load a preset by tapping the desired button. You can save or load a whole column of presets by holding the **[V]** button while selecting a preset from the column.
+To save a preset, hold the slot button for 2 seconds until the slot blinks. Load a preset by tapping the desired button. You can save or load a whole column of presets by holding the **[V]** button while selecting a preset from a column in **[Z]**.
 
 Presets are saved to the grid and can be recalled for later use. They are numbered based on the row and column. In diii you will see files that look like this:  
 `pset_stepiii_11.lua`, `pset_stepiii_21.lua`, `pset_stepiii_31.lua`, etc...
