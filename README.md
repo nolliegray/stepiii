@@ -36,7 +36,7 @@ This button switches to show the second 16 steps of the sequencer.
 The selected steps page stays visible. To have the steps follow the playhead from page to page, press the active page again.
 
 **[E] Track Length**
-This button acts as a toggle. Turning it on will prevent editing steps, but will show the end point for each track as a slow pulse. Each track can have a different length.
+This button acts as a toggle. Turning it on will prevent editing steps, but will show the end point for each track as a slow pulse. Each track can have a different length.
 
 Shortcut:  
 Holding **[E]** and pressing **[C]** resets all tracks to 16 steps.  
