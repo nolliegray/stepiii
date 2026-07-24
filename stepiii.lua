@@ -32,7 +32,7 @@ local function handle_adjust_buttons(x, y, get, set, small, big, lo, hi)
 end
 
 local tracks, presets, active_preset, preset_held, preset_blink, shift_pressed = {}, {}, {}, {}, {}, {}
-local notes = {36, 38, 42, 46, 41, 49, 51}
+local notes = {49, 51, 46, 42, 38, 41, 36}
 
 for i, n in ipairs(notes) do
  tracks[i] = { note = n, channel = 10, steps = {}, ratchets = {}, length = 16, muted = false, swing = 50, micro_timing = 0, pos = 0 }
