@@ -41,6 +41,7 @@ The selected steps page stays visible. To have the steps follow the playhead fro
 This button acts as a toggle. Turning it on will prevent editing steps, but will show the end point for each track as a slow pulse. Each track can have a different length.
 
 Shortcut:  
+Holding **[E]** and pressing a column sets all tracks to that step length.  
 Holding **[E]** and pressing **[C]** resets all tracks to 16 steps.  
 Holding **[E]** and pressing **[D]** resets all tracks to 32 steps.
 ![Step Pages](img/stepiii_Step-Pages.png)
@@ -155,9 +156,10 @@ Each preset stores the track’s steps, velocities, ratchets, mutes, length, swi
 To save a preset, hold the slot button for 2 seconds until the slot blinks. Load a preset by tapping the desired button. You can save or load a whole column of presets by holding the **[V]** button while selecting a preset from **[Z]**.
 
 Presets are saved to the grid and can be recalled for later use. They are numbered based on the row and column. In diii you will see files that look like this:  
-`pset_stepiii_11.lua`, `pset_stepiii_21.lua`, etc...
+`pset_stepiii_11.lua`,  
+`pset_stepiii_21.lua`, etc...
 
-Another global preset:
-`pset_stepiii_100.lua`
+Another global preset:  
+`pset_stepiii_100.lua`  
 serves as a global state memory. It recalls your last used BPM and which presets were last loaded. It is updated when pressing any preset button.
 ![Perform Presets](img/stepiii_Perform-Presets.png)
