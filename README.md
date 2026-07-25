@@ -19,7 +19,7 @@ For performance, it has mutes, preset save and recall per track, tempo note repe
 This button starts and stops the sequencer. When clocking externally, this button only functions as a stop. The playhead will move across the grid for each track.
 
 Shortcut:  
-Holding **[A]** for 2 seconds will clear the sequence steps and reset all tracks to 16 steps. 
+Holding **[A]** for 2 seconds will clear the sequence steps and reset all tracks to 16 steps. If you press the first button in a track while holding **[A]**, then just a single track will clear.
 
 **[B] Reset**
 This button resets each track back to the first step. I can be done in either clocking mode.
@@ -99,7 +99,10 @@ The two sets of buttons next to the number display are for increasing or decreas
 
 Swing can be adjusted from 50 (no swing) to 75%.
 
-Offset shifts all the steps on a track to play early or late. Offset adjustment can range from -50 to +50 milliseconds.
+Offset adjustment can range from -50 to +50 milliseconds to play the track early or late.
+
+Shortcut: 
+Holding **[N]** and pressing an increment button will change all tracks to match the current value.
 ![Swing Offset](img/stepiii_Swing-Offset.png)
 
 ## Shift
@@ -121,7 +124,8 @@ The two columns of buttons on the left are for choosing which track and which op
 **[U] Increments**
 The two sets of buttons next to the number display are for increasing or decreasing the note number or MIDI channel.
 
-MIDI notes can range from 0 to 127 and MIDI channels can range from 1 to 16. The default channel is 10 and tracks 1-7 are 36, 38, 42, 46, 41, 49, and 51.
+MIDI notes can range from 0 to 127 and MIDI channels can range from 1 to 16. The default channel is 10 and tracks 1-7 are: 49, 51, 46, 42, 38, 41, and 36.
+
 ![Note MIDI](img/stepiii_Note-MIDI.png)
 
 ## Perform - Mute, Repeats & Cycle
@@ -146,11 +150,12 @@ This grid represents the preset slots for the sequencer. Each track can store 8 
 
 Each preset stores the track’s steps, velocities, ratchets, mutes, length, swing, offset, MIDI note, and MIDI channel.
 
-To save a preset, hold the slot button for 2 seconds until the slot blinks. Load a preset by tapping the desired button. You can save or load a whole column of presets by holding the **[V]** button while selecting a preset from a column in **[Z]**.
+To save a preset, hold the slot button for 2 seconds until the slot blinks. Load a preset by tapping the desired button. You can save or load a whole column of presets by holding the **[V]** button while selecting a preset from **[Z]**.
 
 Presets are saved to the grid and can be recalled for later use. They are numbered based on the row and column. In diii you will see files that look like this:  
-`pset_stepiii_11.lua`, `pset_stepiii_21.lua`, `pset_stepiii_31.lua`, etc...
+`pset_stepiii_11.lua`, `pset_stepiii_21.lua`, etc...
 
-There is another global preset numbered 100 that serves as a global state memory. It recalls your last used BPM and which presets were last loaded. It is updated when pressing any preset button. It looks like this in diii:  
+Another global preset:
 `pset_stepiii_100.lua`
+serves as a global state memory. It recalls your last used BPM and which presets were last loaded. It is updated when pressing any preset button.
 ![Perform Presets](img/stepiii_Perform-Presets.png)
