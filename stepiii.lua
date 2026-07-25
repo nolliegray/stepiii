@@ -83,11 +83,12 @@ end
 local selected_track, selected_offset_track, selected_channel_track = 1, nil, nil
 local view_page, page_pinned = 1, false
 
-local play_btn_held, play_btn_down_time, play_btn_cleared, play_btn_blink_time = false, 0, false, 0
+local play_btn_held, play_btn_down_time, play_btn_cleared, play_btn_blink_time, play_btn_used_as_modifier = false, 0, false, 0, false
 local vel_btn_held, default_velocity, vel_used_as_modifier = false, 96, false
 local ratchet_btn_held, default_ratchet, ratchet_used_as_modifier = false, false, false
 
 local length_btn_down = false
+local swing_btn_held, swing_used_as_modifier, swing_page_was_active = false, false, false
 local perform_btn_held, perform_used_as_modifier, perform_page_was_active = false, false, false
 local pending_global_save = false
 
@@ -145,7 +146,7 @@ local sys_m = metro.init(function()
  
  if pending_global_save then pset_write(100, active_preset); pending_global_save = false end
 
- if play_btn_held and not play_btn_cleared and (sys_time - play_btn_down_time) >= 2.0 then
+ if play_btn_held and not play_btn_cleared and not play_btn_used_as_modifier and (sys_time - play_btn_down_time) >= 2.0 then
  for i = 1, #tracks do reset_track(tracks[i]) end
  for k in pairs(pages) do pages[k] = false end
  default_velocity, default_ratchet = 96, false
@@ -349,7 +350,6 @@ end
 local bottom_row_actions = {
  [2] = function() current_step = 0; for i=1,#tracks do tracks[i].pos = 0 end end,
  [3] = function() toggle_page("bpm") end,
- [12] = function() toggle_page("swing") end,
  [13] = function() toggle_page("shift") end,
  [15] = function() toggle_page("notes") end
 }
@@ -369,6 +369,20 @@ function event_grid(x, y, z)
   return
  end
 
+ if x == 12 and y == 8 then
+  if z == 1 then
+   swing_btn_held = true
+   swing_used_as_modifier = false
+   swing_page_was_active = pages.swing
+   if not pages.swing then toggle_page("swing") end
+  elseif z == 0 then
+   swing_btn_held = false
+   if not swing_used_as_modifier and swing_page_was_active then toggle_page("swing") end
+  end
+  draw()
+  return
+ end
+
  if z == 1 and y == 8 and bottom_row_actions[x] then 
   bottom_row_actions[x]()
   draw()
@@ -376,10 +390,10 @@ function event_grid(x, y, z)
  end
 
  if x == 1 and y == 8 then
- if z == 1 then play_btn_held, play_btn_down_time, play_btn_cleared = true, sys_time, false
+ if z == 1 then play_btn_held, play_btn_down_time, play_btn_cleared, play_btn_used_as_modifier = true, sys_time, false, false
  elseif z == 0 then 
 play_btn_held = false
- if not play_btn_cleared then 
+ if not play_btn_cleared and not play_btn_used_as_modifier then 
 playing = not playing
  if playing then playback_start_time = sys_time; if clock_source == 1 then m:start(); midi_clock_m:start(); midi_tx(250) end
  else if clock_source == 1 then m:stop(); midi_clock_m:stop(); midi_tx(252) end end
@@ -387,6 +401,16 @@ playing = not playing
 end 
 end return 
 end
+
+ if play_btn_held and x == 1 and y <= #tracks then
+  if z == 1 then
+   clear_track_data(tracks[y])
+   play_btn_used_as_modifier = true
+   draw()
+  end
+  return
+ end
+
  if x == 9 and y == 8 then
  if z == 1 then vel_btn_held, vel_used_as_modifier = true, false
  elseif z == 0 then vel_btn_held = false; if not vel_used_as_modifier then default_velocity = next_vel[default_velocity] end end draw(); return
@@ -489,8 +513,27 @@ end
  elseif pages.swing then
  if x == 1 and y <= #tracks then selected_track, selected_offset_track = y, nil; draw()
  elseif x == 2 and y <= #tracks then selected_offset_track = y; draw()
- elseif selected_offset_track then if handle_adjust_buttons(x, y, function() return tracks[selected_offset_track].micro_timing end, function(v) tracks[selected_offset_track].micro_timing = v end, 1, 5, -50, 50) then draw() end
- else if handle_adjust_buttons(x, y, function() return tracks[selected_track].swing end, function(v) tracks[selected_track].swing = v end, 1, 5, 50, 75) then draw() end end
+ elseif selected_offset_track then 
+  if handle_adjust_buttons(x, y, 
+   function() return tracks[selected_offset_track].micro_timing end, 
+   function(v) 
+    tracks[selected_offset_track].micro_timing = v 
+    if swing_btn_held then 
+     swing_used_as_modifier = true
+     for i=1,#tracks do tracks[i].micro_timing = v end 
+    end
+   end, 1, 5, -50, 50) then draw() end
+ else 
+  if handle_adjust_buttons(x, y, 
+   function() return tracks[selected_track].swing end, 
+   function(v) 
+    tracks[selected_track].swing = v 
+    if swing_btn_held then 
+     swing_used_as_modifier = true
+     for i=1,#tracks do tracks[i].swing = v end 
+    end
+   end, 1, 5, 50, 75) then draw() end 
+ end
  else
  if y <= #tracks and not pages.shift then
  local idx = x + (current_view_page() == 2 and 16 or 0)
@@ -550,7 +593,15 @@ end
  for _, c in ipairs({12,13,14}) do grid_led(c, y, tracks[y].repeat_col == c and 15 or 4) end
  end
  elseif pages.swing then
- for i=1,#tracks do grid_led(1, i, (not selected_offset_track and i == selected_track) and 15 or 4); grid_led(2, i, i == selected_offset_track and 15 or 4) end
+ for i=1,#tracks do 
+  local col1_br = (not selected_offset_track and i == selected_track) and 15 or 4
+  local col2_br = (i == selected_offset_track) and 15 or 4
+  if swing_btn_held then
+   if selected_offset_track then col2_br = 15 else col1_br = 15 end
+  end
+  grid_led(1, i, col1_br)
+  grid_led(2, i, col2_br) 
+ end
  if selected_offset_track then
  local mt = tracks[selected_offset_track].micro_timing
  if mt < 0 then draw_digit("-",6,1) elseif mt > 0 then draw_digit("+",6,1) end
