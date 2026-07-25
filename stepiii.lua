@@ -147,7 +147,10 @@ local sys_m = metro.init(function()
  if pending_global_save then pset_write(100, active_preset); pending_global_save = false end
 
  if play_btn_held and not play_btn_cleared and not play_btn_used_as_modifier and (sys_time - play_btn_down_time) >= 2.0 then
- for i = 1, #tracks do reset_track(tracks[i]) end
+ for i = 1, #tracks do 
+  if tracks[i].playing_note then note_off(i) end
+  reset_track(tracks[i]) 
+ end
  for k in pairs(pages) do pages[k] = false end
  default_velocity, default_ratchet = 96, false
  view_page, page_pinned = 1, false
@@ -328,6 +331,7 @@ playing, playback_start_time, ext_tick_counter, current_step = true, sys_time, 0
  draw()
  elseif d1 == 252 then 
 playing = false
+ for i = 1, #tracks do if tracks[i].playing_note then note_off(i) end end
  draw() 
 end
  end
@@ -410,7 +414,10 @@ play_btn_held = false
  if not play_btn_cleared and not play_btn_used_as_modifier then 
 playing = not playing
  if playing then playback_start_time = sys_time; if clock_source == 1 then m:start(); midi_clock_m:start(); midi_tx(250) end
- else if clock_source == 1 then m:stop(); midi_clock_m:stop(); midi_tx(252) end end
+ else 
+  if clock_source == 1 then m:stop(); midi_clock_m:stop(); midi_tx(252) end 
+  for i = 1, #tracks do if tracks[i].playing_note then note_off(i) end end
+ end
  draw() 
 end 
 end return 
@@ -418,6 +425,7 @@ end
 
  if play_btn_held and x == 1 and y <= #tracks then
   if z == 1 then
+   if tracks[y].playing_note then note_off(y) end
    clear_track_data(tracks[y])
    play_btn_used_as_modifier = true
    draw()
@@ -504,8 +512,19 @@ end
  if pages.notes then
  if x == 1 and y <= #tracks then selected_track, selected_channel_track = y, nil; draw() 
 elseif x == 2 and y <= #tracks then selected_channel_track = y; draw()
- elseif selected_channel_track then if handle_adjust_buttons(x, y, function() return tracks[selected_channel_track].channel end, function(v) tracks[selected_channel_track].channel = v end, 1, 4, 0, 16) then draw() end
- else if handle_adjust_buttons(x, y, function() return tracks[selected_track].note end, function(v) tracks[selected_track].note = v end, 1, 10, 0, 127) then draw() end end
+ elseif selected_channel_track then 
+  if handle_adjust_buttons(x, y, function() return tracks[selected_channel_track].channel end, 
+   function(v) 
+    if tracks[selected_channel_track].playing_note then note_off(selected_channel_track) end
+    tracks[selected_channel_track].channel = v 
+   end, 1, 4, 0, 16) then draw() end
+ else 
+  if handle_adjust_buttons(x, y, function() return tracks[selected_track].note end, 
+   function(v) 
+    if tracks[selected_track].playing_note then note_off(selected_track) end
+    tracks[selected_track].note = v 
+   end, 1, 10, 0, 127) then draw() end 
+ end
  elseif pages.bpm then
  if x == 1 and (y == 4 or y == 5) then clock_source = y == 4 and 1 or 2; update_tempo(); if clock_source==1 and playing then m:start(); midi_clock_m:start() else m:stop(); midi_clock_m:stop() end draw(); return end
  if clock_source == 2 and x == 4 and y <= #clock_divs then ext_div_idx = y; update_tempo(); draw(); return end
