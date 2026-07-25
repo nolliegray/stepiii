@@ -367,7 +367,8 @@ function event_grid(x, y, z)
    if not pages.perform then toggle_page("perform") end
   elseif z == 0 then
    perform_btn_held = false
-   if not perform_used_as_modifier and perform_page_was_active then toggle_page("perform") end
+   if not perform_used_as_modifier and perform_page_was_active then toggle_page("perform") 
+   elseif perform_used_as_modifier and not perform_page_was_active then toggle_page("perform") end
   end
   draw()
   return
@@ -381,7 +382,8 @@ function event_grid(x, y, z)
    if not pages.swing then toggle_page("swing") end
   elseif z == 0 then
    swing_btn_held = false
-   if not swing_used_as_modifier and swing_page_was_active then toggle_page("swing") end
+   if not swing_used_as_modifier and swing_page_was_active then toggle_page("swing")
+   elseif swing_used_as_modifier and not swing_page_was_active then toggle_page("swing") end
   end
   draw()
   return
@@ -395,7 +397,8 @@ function event_grid(x, y, z)
    if not pages.length then toggle_page("length") end
   elseif z == 0 then 
    length_btn_down = false
-   if not length_used_as_modifier and length_page_was_active then toggle_page("length") end
+   if not length_used_as_modifier and length_page_was_active then toggle_page("length")
+   elseif length_used_as_modifier and not length_page_was_active then toggle_page("length") end
   end
   draw()
   return
@@ -434,7 +437,7 @@ end
  end
 
  if length_btn_down and z == 1 and y <= #tracks then
-  local idx = x + (current_view_page() == 2 and 16 or 0)
+  local idx = math.max(1, x + (current_view_page() == 2 and 16 or 0))
   length_used_as_modifier = true
   for i=1,#tracks do tracks[i].length = idx end
   draw()
@@ -575,7 +578,7 @@ end
  end
  else
  if y <= #tracks and not pages.shift then
- local idx = x + (current_view_page() == 2 and 16 or 0)
+ local idx = math.max(1, x + (current_view_page() == 2 and 16 or 0))
  if pages.length then tracks[y].length = idx
  elseif ratchet_btn_held then ratchet_used_as_modifier = true; if tracks[y].steps[idx] > 0 then tracks[y].ratchets[idx] = not tracks[y].ratchets[idx] end
  elseif vel_btn_held then vel_used_as_modifier = true; if tracks[y].steps[idx] > 0 then tracks[y].steps[idx] = next_vel[tracks[y].steps[idx]] end
