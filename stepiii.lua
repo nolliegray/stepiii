@@ -87,7 +87,7 @@ local play_btn_held, play_btn_down_time, play_btn_cleared, play_btn_blink_time, 
 local vel_btn_held, default_velocity, vel_used_as_modifier = false, 96, false
 local ratchet_btn_held, default_ratchet, ratchet_used_as_modifier = false, false, false
 
-local length_btn_down = false
+local length_btn_down, length_used_as_modifier, length_page_was_active = false, false, false
 local swing_btn_held, swing_used_as_modifier, swing_page_was_active = false, false, false
 local perform_btn_held, perform_used_as_modifier, perform_page_was_active = false, false, false
 local pending_global_save = false
@@ -383,6 +383,20 @@ function event_grid(x, y, z)
   return
  end
 
+ if x == 7 and y == 8 then
+  if z == 1 then 
+   length_btn_down = true
+   length_used_as_modifier = false
+   length_page_was_active = pages.length
+   if not pages.length then toggle_page("length") end
+  elseif z == 0 then 
+   length_btn_down = false
+   if not length_used_as_modifier and length_page_was_active then toggle_page("length") end
+  end
+  draw()
+  return
+ end
+
  if z == 1 and y == 8 and bottom_row_actions[x] then 
   bottom_row_actions[x]()
   draw()
@@ -411,6 +425,14 @@ end
   return
  end
 
+ if length_btn_down and z == 1 and y <= #tracks then
+  local idx = x + (current_view_page() == 2 and 16 or 0)
+  length_used_as_modifier = true
+  for i=1,#tracks do tracks[i].length = idx end
+  draw()
+  return
+ end
+
  if x == 9 and y == 8 then
  if z == 1 then vel_btn_held, vel_used_as_modifier = true, false
  elseif z == 0 then vel_btn_held = false; if not vel_used_as_modifier then default_velocity = next_vel[default_velocity] end end draw(); return
@@ -419,13 +441,10 @@ end
  if z == 1 then ratchet_btn_held, ratchet_used_as_modifier = true, false
  elseif z == 0 then ratchet_btn_held = false; if not ratchet_used_as_modifier then default_ratchet = not default_ratchet end end draw(); return
  end
- if x == 7 and y == 8 then
- if z == 1 then length_btn_down = true; toggle_page("length") else length_btn_down = false end
- draw(); return
- end
  
 if x == 5 and y == 8 and z == 1 then 
 if length_btn_down then 
+length_used_as_modifier = true
 for i=1,#tracks do tracks[i].length=16 end 
 else 
 for k in pairs(pages) do pages[k]=false end
@@ -436,6 +455,7 @@ end
  
 if x == 6 and y == 8 and z == 1 then 
 if length_btn_down then 
+length_used_as_modifier = true
 for i=1,#tracks do tracks[i].length=32 end 
 else 
 for k in pairs(pages) do pages[k]=false end
