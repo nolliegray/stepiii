@@ -6,7 +6,8 @@ local font = {
  [3]="110001111001111", [4]="101101111001001", [5]="111100111001110",
  [6]="011100111101111", [7]="111001010010010", [8]="011101111101110",
  [9]="111101111001110", ["-"]="000000111000000", ["+"]="000010111010000",
- ["E"]="111100110100111", ["X"]="101101010101101", ["T"]="111010010010010"
+ ["E"]="111100110100111", ["X"]="101101010101101", ["T"]="111010010010010",
+ ["A"]="010101111101101", ["L"]="100100100100111"
 }
 
 local function draw_digit(digit, start_x, start_y)
@@ -602,7 +603,7 @@ grid_led(1, i, (not selected_channel_track and i == selected_track) and 15 or 4)
 end
  if selected_channel_track then
  local c = tracks[selected_channel_track].channel
- if c == 0 then draw_digit("A", 10, 1); draw_digit("L", 14, 1)
+ if c == 0 then draw_digit("A", 6, 1); draw_digit("L", 10, 1); draw_digit("L", 14, 1)
  else 
  if c >= 10 then draw_digit(math.floor(c/10), 10, 1) end
  draw_digit(c%10, 14, 1)
