@@ -127,7 +127,7 @@ The two columns of buttons on the left are for choosing which track and which op
 **[U] Increments**
 The two sets of buttons next to the number display are for increasing or decreasing the note number or MIDI channel.
 
-MIDI notes can range from 0 to 127 and MIDI channels can range from 1 to 16. The default channel is 10 and tracks 1-7 are: 49, 51, 46, 42, 38, 41, and 36.
+MIDI notes can range from 0 to 127 and MIDI channels can range from ALL to 16. The default channel is 10 and tracks 1-7 are: 49, 51, 46, 42, 38, 41, and 36.
 
 ![Note MIDI](img/stepiii_Note-MIDI.png)
 
