@@ -533,10 +533,12 @@ elseif x == 2 and y <= #tracks then selected_channel_track = y; draw()
  if x == 1 and (y == 4 or y == 5) then clock_source = y == 4 and 1 or 2; update_tempo(); if clock_source==1 and playing then m:start(); midi_clock_m:start() else m:stop(); midi_clock_m:stop() end draw(); return end
  if clock_source == 2 and x == 4 and y <= #clock_divs then ext_div_idx = y; update_tempo(); draw(); return end
  if x == 1 and y == 1 then
- if #taps > 0 and (sys_time - taps[#taps]) < 0.1 then return end
- table.insert(taps, sys_time)
- if #taps > 1 then local d = (sys_time - taps[1])/(#taps - 1); if d > 0 then bpm = math.floor(clamp(60/d, 20, 300)); update_tempo() end end
- if #taps > 4 then table.remove(taps, 1) end; draw()
+  if #taps > 0 and (sys_time - taps[#taps]) > 2.0 then taps = {} end
+  if #taps > 0 and (sys_time - taps[#taps]) < 0.1 then return end
+  table.insert(taps, sys_time)
+  if #taps > 1 then local d = (sys_time - taps[1]) / (#taps - 1); if d > 0 then bpm = math.floor(clamp(60/d, 20, 300)); update_tempo() end end
+  if #taps > 4 then table.remove(taps, 1) end
+  draw()
  end
  if clock_source == 1 and handle_adjust_buttons(x, y, function() return bpm end, function(v) bpm = v; update_tempo() end, 1, 10, 20, 300) then draw() end
  elseif pages.perform then
