@@ -24,7 +24,7 @@ Shortcut:
 Holding **[A]** for 2 seconds will clear the sequence steps and reset all tracks to 16 steps. If you press the first button in a track while holding **[A]**, then just a single track will clear.
 
 **[B] Reset**
-This button resets each track back to the first step. I can be done in either clocking mode.
+This button resets each track back to the first step. Reset works in either clocking mode and can be handled by external resets sent through MIDI.
 ![Play Stop Reset](img/stepiii_Play-Stop-Reset.png)
 
 ## Step Pages
