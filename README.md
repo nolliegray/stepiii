@@ -3,7 +3,7 @@ A performance step sequencer for Monome Grid using iii
 
 Current Version 2.0
 
-[![stepiii 2.0 demo](https://github.com/nolliegray/stepiii/blob/main/img/stepiii_2.0_thumbnail.jpg)](https://www.youtube.com/watch?v=aojaf-PSalU)
+[![stepiii 2.0 demo](img/stepiii_2.0_thumbnail.jpg)](https://www.youtube.com/watch?v=aojaf-PSalU)
 
 
 ## Overview
