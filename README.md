@@ -1,7 +1,7 @@
 # stepiii
 A performance step sequencer for Monome Grid using iii
 
-Current Version 2.0
+Current Version 2.1
 
 [![stepiii 2.0 demo](img/stepiii_2.0_thumbnail.jpg)](https://www.youtube.com/watch?v=aojaf-PSalU)
 
