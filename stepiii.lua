@@ -1,4 +1,4 @@
--- stepiii v2.0.0
+-- stepiii v2.1.0
 pset_init("stepiii")
 
 local grid_dirty, sys_time = true, 0
@@ -20,8 +20,6 @@ local function draw_text(txt, start_x, start_y)
   end
  end
 end
-
-local function clamp(v, lo, hi) return math.max(lo, math.min(hi, v)) end
 
 local function adj_btns(x, y, get, set, small, big, lo, hi)
  if x == 13 then
@@ -104,14 +102,14 @@ local function next_grid_t(p) return (not is_play or p <= 0) and sys_time or (sy
 
 local function note_on(i, v)
  local c = trks[i].ch
- if c == 0 then for x = 1, 16 do midi_tx(143 + x, trks[i].note, v or def_vel) end else midi_tx(143 + c, trks[i].note, v or def_vel) end
+ if c == 0 then for x = 1, 16 do midi_note_on(trks[i].note, v or def_vel, x) end else midi_note_on(trks[i].note, v or def_vel, c) end
  trks[i].p_note = true
 end
 
 local function note_off(i)
  if trks[i].p_note then
   local c = trks[i].ch
-  if c == 0 then for x = 1, 16 do midi_tx(127 + x, trks[i].note, 0) end else midi_tx(127 + c, trks[i].note, 0) end
+  if c == 0 then for x = 1, 16 do midi_note_off(trks[i].note, 0, x) end else midi_note_off(trks[i].note, 0, c) end
   trks[i].p_note = false
  end
 end
@@ -177,7 +175,7 @@ swing_m = metro.init(function()
    note_off(h.trk)
    if h.ratch then
     t.r_vel = h.val; local c = t.ch
-    if c == 0 then for i=1,16 do midi_tx(143 + i, t.note, math.max(1, h.val - 15)) end else midi_tx(143 + c, t.note, math.max(1, h.val - 15)) end
+    if c == 0 then for x=1, 16 do midi_note_on(t.note, math.max(1, h.val - 15), x) end else midi_note_on(t.note, math.max(1, h.val - 15), c) end
     table.insert(pend_hits, {t = sys_time + h.s_time / 2, trk = h.trk, k = "r_redo"})
    else note_on(h.trk, h.val) end
    t.p_note = true
