@@ -127,7 +127,7 @@ This button toggles the ratchet option for the steps being entered on the track.
 Velocity and Ratchets can be applied to the same step.
 
 _Shortcut:_  
-Holding **[T]** or **[U]** and pressing an existing step will cycle through options of that step without removing it.
+Holding **[T]** or **[U]** and pressing an existing step will cycle through options of that step without removing it. 
 ![Velocity Ratchet](img/stepiii_Velocity-Ratchet.png)
 
 ## Note & MIDI
