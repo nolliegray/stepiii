@@ -1,4 +1,4 @@
--- stepiii v2.1.0
+-- stepiii v2.2.0
 pset_init("stepiii")
 
 local grid_dirty, sys_time = true, 0
@@ -88,7 +88,7 @@ local vel_held, def_vel, vel_mod = false, 96, false
 local ratch_held, def_ratch, ratch_mod = false, false, false
 local pend_save = false
 
-local clk_src, clk_divs, ext_div = 1, {1, 2, 4, 8, 16}, 1
+local clk_src, clk_divs, ext_div, send_midi_clk = 1, {1, 2, 4, 8, 16}, 1, true
 local ext_ticks, last_beat_t, ext_beats = 0, 0, 0
 local ppqn, is_start = 23, false
 
@@ -124,6 +124,12 @@ local sys_m = metro.init(function()
   for i, t in ipairs(trks) do note_off(i); for j = 1, 64 do t.steps[j], t.ratch[j] = 0, false end; t.len = 16 end
   for k in pairs(pages) do pages[k] = false end
   def_vel, def_ratch, view_page, page_pin = 96, false, 1, false
+  
+  if clk_src == 1 and is_play and send_midi_clk then
+   midi_tx(252)
+   midi_tx(250)
+  end
+  
   play_clear, play_blink_t, grid_dirty = true, sys_time, true
  end
  if play_blink_t > 0 and (sys_time - play_blink_t) >= 0.75 then play_blink_t = 0; grid_dirty = true end
@@ -185,7 +191,6 @@ swing_m = metro.init(function()
 end, 0.1, 1)
 
 local function clock_tick()
- if clk_src == 1 then midi_tx(248) end
  local n_tick, sixteenth = ((ppqn % 12) + 1) % 12, ppqn % 6
  
  if (sixteenth + 1) % 6 == 0 then
@@ -243,9 +248,10 @@ end
 local b_blink, r_blink = true, true
 b_m = metro.init(function() b_blink = not b_blink; grid_dirty = true end, (60 / bpm) / 2); b_m:start()
 rb_m = metro.init(function() r_blink = not r_blink; grid_dirty = true end, (60 / bpm) / 4); rb_m:start()
+local midi_clk_m = metro.init(function() if clk_src == 1 and send_midi_clk then midi_tx(248) end end, (60 / bpm) / 24); midi_clk_m:start()
 
 function update_tempo()
- local b = 60 / eff_bpm(); m.time, b_m.time, rb_m.time = b/24, b/2, b/4 
+ local b = 60 / eff_bpm(); m.time, b_m.time, rb_m.time, midi_clk_m.time = b/24, b/2, b/4, b/24 
  for _, t in ipairs(trks) do if t.rep_col then t.rep_per = rep_per(t.rep_col) end end
 end; update_tempo()
 
@@ -276,7 +282,12 @@ function event_grid(x, y, z)
 
   if z == 1 then
    if x == 1 then play_held, play_down_t, play_clear, play_mod = true, sys_time, false, false
-   elseif x == 2 then cur_step = 0; for i=1, #trks do trks[i].pos = 0 end
+   elseif x == 2 then 
+    cur_step = 0; for i=1, #trks do trks[i].pos = 0 end
+    if clk_src == 1 and is_play and send_midi_clk then
+     midi_tx(252)
+     midi_tx(250)
+    end
    elseif x == 3 then tog_page("bpm")
    elseif x == 11 then tog_page("shift")
    elseif x == 13 then vel_held, vel_mod = true, false
@@ -289,8 +300,8 @@ function event_grid(x, y, z)
      is_play = not is_play
      if is_play then play_start, is_start, ppqn, cur_step = sys_time, true, 23, 0
       for i = 1, #trks do trks[i].pos = 0 end
-      if clk_src == 1 then m:start(); midi_tx(250); clock_tick() end
-     else if clk_src == 1 then m:stop(); midi_tx(252) end; for i = 1, #trks do note_off(i) end end
+      if clk_src == 1 then m:start(); if send_midi_clk then midi_tx(250) end; clock_tick() end
+     else if clk_src == 1 then m:stop(); if send_midi_clk then midi_tx(252) end end; for i = 1, #trks do note_off(i) end end
     end
    elseif x == 13 then vel_held = false; if not vel_mod then def_vel = next_vel[def_vel] end
    elseif x == 14 then ratch_held = false; if not ratch_mod then def_ratch = not def_ratch end end
@@ -377,7 +388,8 @@ function event_grid(x, y, z)
     end
     if x == 3 and y == 2 then clk_src = 1; update_tempo(); if is_play then m:start() end; grid_dirty = true; return end
     if x == 4 and y == 2 then clk_src = 2; update_tempo(); m:stop(); grid_dirty = true; return end
-    if clk_src == 2 and y == 2 and x >= 6 and x <= 10 then ext_div = x - 5; update_tempo(); grid_dirty = true; return end
+    if x == 16 and y == 2 and clk_src == 1 then send_midi_clk = not send_midi_clk; grid_dirty = true; return end
+    if clk_src == 2 and y == 2 and x >= 12 and x <= 16 then ext_div = x - 11; update_tempo(); grid_dirty = true; return end
     if clk_src == 1 and adj_btns(x, y, function() return bpm end, function(v) bpm = v; update_tempo() end, 1, 10, 20, 300) then grid_dirty = true end
    elseif pages.perf then
     if x == 16 then 
@@ -434,8 +446,8 @@ local function hardware_redraw()
   increment_btns()
  elseif pages.bpm then
   grid_led(1, 2, b_blink and 15 or 4); grid_led(3, 2, clk_src == 1 and 15 or 4); grid_led(4, 2, clk_src == 2 and 15 or 4)
-  if clk_src == 2 then draw_text("EXT", 1, 4); for i=1, #clk_divs do grid_led(i+5, 2, ext_div==i and 15 or 4) end
-  else draw_text(math.floor(bpm + 0.5), 1, 4); increment_btns() end
+  if clk_src == 2 then draw_text("EXT", 1, 4); for i=1, #clk_divs do grid_led(i+11, 2, ext_div==i and 15 or 4) end
+  else draw_text(math.floor(bpm + 0.5), 1, 4); increment_btns(); grid_led(16, 2, send_midi_clk and 15 or 1) end
  elseif pages.perf then
   for y = 1, #trks do
    for x = 1, 8 do
