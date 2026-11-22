@@ -16,7 +16,7 @@ local function draw_text(txt, start_x, start_y)
  for c = 1, #str do
   local pat = font[str:sub(c, c)]
   if pat then 
-   for i = 1, 15 do if pat:sub(i, i) == "1" then grid_led(start_x + ((c-1)*4) + ((i-1)%3), start_y + math.floor((i-1)/3), 5) end end
+   for i = 1, 15 do if pat:sub(i, i) == "1" then grid_led(start_x + ((c-1)*4) + ((i-1)%3), start_y + math.floor((i-1)/3), 10) end end
   end
  end
 end
