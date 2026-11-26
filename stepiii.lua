@@ -1,4 +1,4 @@
--- stepiii v2.2.0
+-- stepiii v2.2.1
 pset_init("stepiii")
 
 local grid_dirty, sys_time = true, 0
